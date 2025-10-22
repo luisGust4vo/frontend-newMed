@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Brain } from 'lucide-react';
 import Button from '@/components/ui/button/Button';
 import { ReportTemplate, TemplateField } from '@/lib/templates';
 import { Patient } from '@/lib/types';
+import { AIAnalysisPanel } from '@/components/AIAnalysisPanel';
+import { AIAnalysis, aiTemplates } from '@/lib/ai-assistant';
 
 interface TemplateFormProps {
   template: ReportTemplate;
@@ -17,6 +20,12 @@ interface TemplateFormProps {
 }
 
 export function TemplateForm({ template, patients, onSubmit, onBack, loading = false }: TemplateFormProps) {
+  const [showAI, setShowAI] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+  
+  // Verificar se tem template de IA correspondente
+  const hasAITemplate = aiTemplates.some(ai => ai.specialty === template.category);
+  
   // Criar schema dinâmico baseado nos campos do template
   const createSchema = (fields: TemplateField[]) => {
     const schemaFields: Record<string, z.ZodTypeAny> = {
@@ -148,20 +157,33 @@ export function TemplateForm({ template, patients, onSubmit, onBack, loading = f
   const handleFormSubmit = async (data: Record<string, unknown>) => {
     // Gerar título e corpo do laudo baseado no template
     const title = `${template.name} - ${patients.find(p => p.id === data.patientId)?.name}`;
-    const body = template.fields.map(field => {
+    let body = template.fields.map(field => {
       const value = data[field.id];
       if (value) {
         return `${field.label}: ${value}`;
       }
       return null;
     }).filter(Boolean).join('\n\n');
+    
+    // Adicionar análise da IA se disponível
+    if (aiAnalysis) {
+      body += '\n\n=== ANÁLISE COM INTELIGÊNCIA ARTIFICIAL ===\n';
+      body += `\nDiagnósticos Sugeridos:\n${aiAnalysis.diagnosis.map(d => `• ${d}`).join('\n')}`;
+      body += `\n\nRecomendações:\n${aiAnalysis.recommendations.map(r => `• ${r}`).join('\n')}`;
+      body += `\n\nConfiança da Análise: ${Math.round(aiAnalysis.confidence * 100)}%`;
+    }
 
     await onSubmit({
       ...data,
       title,
       body,
       templateId: template.id,
+      aiAnalysis,
     });
+  };
+  
+  const handleAIAnalysis = (analysis: AIAnalysis) => {
+    setAiAnalysis(analysis);
   };
 
   return (
@@ -258,6 +280,17 @@ export function TemplateForm({ template, patients, onSubmit, onBack, loading = f
         </div>
 
         <div className="flex gap-4 pt-4">
+          {hasAITemplate && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAI(!showAI)}
+              startIcon={<Brain className="w-4 h-4" />}
+              className="flex-1 md:flex-none"
+            >
+              {showAI ? 'Ocultar IA' : 'Analisar com IA'}
+            </Button>
+          )}
           <Button
             type="submit"
             variant="primary"
@@ -269,6 +302,17 @@ export function TemplateForm({ template, patients, onSubmit, onBack, loading = f
           </Button>
         </div>
       </form>
+      
+      {/* Painel de IA */}
+      {showAI && hasAITemplate && (
+        <div className="mt-8">
+          <AIAnalysisPanel
+            data={watch() as Record<string, string>}
+            templateId={aiTemplates.find(ai => ai.specialty === template.category)?.id}
+            onAnalysisComplete={handleAIAnalysis}
+          />
+        </div>
+      )}
     </div>
   );
 }

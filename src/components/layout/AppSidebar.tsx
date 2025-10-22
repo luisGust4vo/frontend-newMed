@@ -8,7 +8,11 @@ import {
   FileText, 
   Users, 
   Settings, 
-  Plus 
+  Plus,
+  Calendar,
+  Crown,
+  Zap,
+  BarChart3
 } from 'lucide-react';
 import { useSidebar } from '@/context/SidebarContext';
 
@@ -29,9 +33,33 @@ const navItems = [
     icon: <Plus className="w-5 h-5" />,
   },
   {
+    name: 'Agenda',
+    path: '/calendar',
+    icon: <Calendar className="w-5 h-5" />,
+    badge: 'Novo'
+  },
+  {
     name: 'Pacientes',
     path: '/patients',
     icon: <Users className="w-5 h-5" />,
+  },
+  {
+    name: 'Automação',
+    path: '/automation',
+    icon: <Zap className="w-5 h-5" />,
+    badge: 'IA'
+  },
+  {
+    name: 'Analytics',
+    path: '/analytics',
+    icon: <BarChart3 className="w-5 h-5" />,
+    badge: 'Pro'
+  },
+  {
+    name: 'Premium',
+    path: '/subscription',
+    icon: <Crown className="w-5 h-5" />,
+    badge: 'Pro'
   },
   {
     name: 'Configurações',
@@ -95,7 +123,18 @@ export function AppSidebar() {
               >
                 <span className="flex-shrink-0">{item.icon}</span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className="ml-3 font-medium">{item.name}</span>
+                  <div className="flex items-center justify-between flex-1 ml-3">
+                    <span className="font-medium">{item.name}</span>
+                    {item.badge && (
+                      <span className={`px-2 py-1 text-xs font-bold rounded-full ${
+                        item.badge === 'Pro' 
+                          ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white' 
+                          : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      }`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
                 )}
               </Link>
             </li>

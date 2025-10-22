@@ -278,19 +278,39 @@ export default function DashboardPage() {
             />
             
             <QuickActionCard
-              title="Relatórios"
-              description="Acompanhe suas estatísticas, receitas e performance da sua prática"
-              icon={<Activity className="w-6 h-6" />}
-              href="/reports"
+              title="Agenda Inteligente"
+              description="Calendário com agendamento automático via WhatsApp e lembretes"
+              icon={<Calendar className="w-6 h-6" />}
+              href="/calendar"
               color="blue"
+              badge="Novo"
             />
             
             <QuickActionCard
-              title="Configurações"
-              description="Personalize sua conta, tema e preferências do sistema"
+              title="Automação Inteligente"
+              description="Workflows que executam tarefas repetitivas automaticamente"
+              icon={<Activity className="w-6 h-6" />}
+              href="/automation"
+              color="purple"
+              badge="IA"
+            />
+            
+            <QuickActionCard
+              title="IA para Laudos"
+              description="Análise automática com inteligência artificial para diagnósticos precisos"
+              icon={<Activity className="w-6 h-6" />}
+              href="/reports/create"
+              color="purple"
+              badge="IA"
+            />
+            
+            <QuickActionCard
+              title="Planos Premium"
+              description="Desbloqueie recursos avançados, IA ilimitada e integrações exclusivas"
               icon={<CheckCircle className="w-6 h-6" />}
-              href="/settings"
-              color="green"
+              href="/subscription"
+              color="pink"
+              badge="Pro"
             />
           </div>
         </div>
